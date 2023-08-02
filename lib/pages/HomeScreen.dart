@@ -240,36 +240,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Hero(
-        tag: "BottomNav",
-        child: SizedBox(
-          height: 90,
-          child: BottomNavigationBar(
-            selectedFontSize: 8,
-            unselectedFontSize: 8,
-            currentIndex: 0,
-            selectedItemColor: _colorScheme.primary,
-            unselectedItemColor: _colorScheme.tertiary,
-            selectedLabelStyle: kBottomNavText,
-            unselectedLabelStyle: kBottomNavText,
-            iconSize: 30,
-            elevation: 1.5,
-            onTap: (int index) {
-
-            },
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_filled),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.settings_outlined),
-                label: 'Settings',
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dr_scan/pages/BottomNavbar.dart';
 import 'package:dr_scan/pages/HomeScreen.dart';
 import 'package:flutter/material.dart';
 
@@ -55,7 +56,7 @@ class AuthenticationScreen extends StatelessWidget {
             SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, HomeScreen.id);
+                Navigator.pushNamed(context, BottomNavbar.id);
               },
               style: ButtonStyle(
                 fixedSize: MaterialStateProperty.all(
