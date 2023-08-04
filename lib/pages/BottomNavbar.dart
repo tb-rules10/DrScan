@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:dr_scan/constants/textStyles.dart';
 import 'package:dr_scan/pages/HomeScreen.dart';
 import 'package:dr_scan/pages/SettingScreen.dart';

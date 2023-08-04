@@ -1,5 +1,4 @@
 import 'package:dr_scan/pages/BottomNavbar.dart';
-import 'package:dr_scan/pages/HomeScreen.dart';
 import 'package:flutter/material.dart';
 
 class AuthenticationScreen extends StatelessWidget {
@@ -10,100 +9,104 @@ class AuthenticationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     TextEditingController _emailController = TextEditingController();
     TextEditingController _passwordController = TextEditingController();
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
     // SystemChrome.setPreferredOrientations(po)
     return Scaffold(
       backgroundColor: Color(0xffFFFFFF),
       body: SafeArea(
-        child: Column(
-          children: [
-            const Padding(
-              padding: const EdgeInsets.fromLTRB(0, 120, 0, 30),
-              child: Center(
-                child: Text(
-                  'DrScan',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    color: Colors.black87,
-                    fontFamily: 'Inter',
-                    fontSize: 32,
-                  ),
-                ),
-              ),
-            ),
-            const Text(
-              'Sign in to continue',
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-                fontFamily: 'Inter',
-                fontSize: 24,
-              ),
-            ),
-            SizedBox(
-              height: 100,
-            ),
-            _buildTextFieldWithLabelAndIcon(
-              label: 'Email',
-              controller: _emailController,
-              icon: Icons.email,
-            ),
-            SizedBox(height: 20),
-            _buildTextFieldWithLabelAndIcon(
-              label: 'Password',
-              controller: _passwordController,
-              icon: Icons.lock,
-            ),
-            SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, BottomNavbar.id);
-              },
-              style: ButtonStyle(
-                fixedSize: MaterialStateProperty.all(
-                  Size(295, 56),
-                ),
-                backgroundColor: MaterialStateProperty.all(
-                  Color(0xff0175ff),
-                ),
-                shape: MaterialStateProperty.all(
-                  RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25)),
-                ),
-              ),
-              child: Text(
-                'Sign In',
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontFamily: 'Inter',
-                  fontSize: 20,
-                ),
-              ),
-            ),
-            SizedBox(height: 140,),
-            Text.rich(
-              TextSpan(
-                text: 'Already have an account? ',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
-                children: [
-                  TextSpan(
-                    text: 'Register',
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.fromLTRB(0,height*0.15,0,height*0.037),
+                child: Center(
+                  child: Text(
+                    'DrScan',
                     style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black87,
                       fontFamily: 'Inter',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xff0175ff), // Set your desired color for "Register" text
+                      fontSize: 32,
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-
-          ],
+              const Text(
+                'Sign in to continue',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                  fontFamily: 'Inter',
+                  fontSize: 24,
+                ),
+              ),
+              SizedBox(
+                height: height*0.12,
+              ),
+              _buildTextFieldWithLabelAndIcon(
+                label: 'Email',
+                controller: _emailController,
+                icon: Icons.email,
+              ),
+              SizedBox(height: height*0.02),
+              _buildTextFieldWithLabelAndIcon(
+                label: 'Password',
+                controller: _passwordController,
+                icon: Icons.lock,
+              ),
+              SizedBox(height: height*0.045),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, BottomNavbar.id);
+                },
+                style: ButtonStyle(
+                  fixedSize: MaterialStateProperty.all(
+                    Size(295, 56),
+                  ),
+                  backgroundColor: MaterialStateProperty.all(
+                    Color(0xff0175ff),
+                  ),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25)),
+                  ),
+                ),
+                child: Text(
+                  'Sign In',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Inter',
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+              SizedBox(height: height*0.170,),
+              const Text.rich(
+                TextSpan(
+                  text: 'Already have an account? ',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: ' Register',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xff0175ff), // Set your desired color for "Register" text
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+        
+            ],
+          ),
         ),
       ),
     );
