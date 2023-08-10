@@ -6,6 +6,7 @@ class AppTheme{
 
   static ThemeData lightTheme = ThemeData(
       scaffoldBackgroundColor: Color(0xFFF3F3F3),
+      // scaffoldBackgroundColor:Color(0xFF1C1C1C),
       // textTheme: const TextTheme(
       //   bodyMedium: TextStyle(color: Colors.black),
       //   bodyLarge: TextStyle(color: Colors.black),
