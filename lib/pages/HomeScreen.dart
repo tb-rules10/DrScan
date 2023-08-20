@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dr_scan/pages/PatientFormScreen.dart';
+import 'package:dr_scan/pages/SettingsScreen.dart';
+import 'package:dr_scan/pages/ShowPatientsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -7,6 +9,8 @@ import 'package:open_file/open_file.dart';
 import '../components/homeScreenButtons.dart';
 import '../constants/textStyles.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../utils/PageTransition.dart';
 
 class HomeScreen extends StatefulWidget {
   static String id = "HomeScreen";
@@ -17,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
 
   Future<void> downloadFile(BuildContext context) async {
@@ -45,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
     double width = MediaQuery.of(context).size.width;
     var _colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
+      key: _scaffoldKey,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -58,10 +64,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     backgroundImage: NetworkImage(
                         "https://img.freepik.com/free-vector/doctor-character-background_1270-84.jpg"),
                   ),
-
-                  Image.asset(
-                    "assets/images/button-removebg-preview.png",
-                    height: 45,
+                  GestureDetector(
+                    onTap: (){
+                      _scaffoldKey.currentState?.openEndDrawer();
+                    },
+                    child: Image.asset(
+                      "assets/images/button-removebg-preview.png",
+                      height: 45,
+                    ),
                   )
                 ],
               ),
@@ -106,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     heading: "See your Result",
                     subHeading: "Lorem iipsem somethin text",
                     onTap: (){
-
+                      Navigator.pushNamed(context, ShowPatientsScreen.id);
                     },
                   ),
                   WhiteButton(
@@ -119,6 +129,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               )
+            ],
+          ),
+        ),
+      ),
+      endDrawer: Drawer(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Future Scope',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
         ),
@@ -138,6 +162,17 @@ class _HomeScreenState extends State<HomeScreen> {
             iconSize: 30,
             elevation: 1.5,
             onTap: (int index) {
+                if(index == 0) {
+                  null;
+                } else{
+                  Navigator.push(
+                    context,
+                    FadePageRouteBuilder(
+                      builder: (context) => SettingsScreen(),
+                    ),
+                  );
+                  // Navigator.pushNamed(context, SettingsScreen.id);
+                }
 
             },
             items: const [

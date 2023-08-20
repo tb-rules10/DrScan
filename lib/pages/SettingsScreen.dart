@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 // import '../components/buttons.dart';
 import '../components/commonWidgets.dart';
+import '../utils/PageTransition.dart';
 
 class SettingsScreen extends StatefulWidget {
   static String id = "SettingsScreen";
@@ -28,7 +29,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 5, 20, 0),
               child: ScreenHeading(heading: 'Settings'),
-            ),  
+            ),
             SubHeading(context, 'Account'),
             Tile(context, 'Profile', () {
               print('Callback function called!');
@@ -100,7 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: BottomNavigationBar(
             selectedFontSize: 8,
             unselectedFontSize: 8,
-            currentIndex: 0,
+            currentIndex: 1,
             selectedItemColor: _colorScheme.tertiary,
             unselectedItemColor: _colorScheme.primary,
             selectedLabelStyle: kBottomNavText,
@@ -108,22 +109,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             iconSize: 30,
             elevation: 1.5,
             onTap: (int index) {
-              print("Tapped on index $index");
-              switch (index) {
-                case 0:
-                  print("Navigating to HomeScreen");
-                  Navigator.pushNamed(context, HomeScreen.id);
-                  setState(() {
-                    
-                  });
-                  break;
-                case 1:
-                  print("Navigating to SettingsScreen");
-                  Navigator.pushNamed(context, SettingsScreen.id);
-                  break;
-                default:
-                  break;
-                  
+              if(index == 1) {
+                null;
+              } else{
+                Navigator.pop(
+                  context,
+                  SlideRightPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
               }
             },
             items: const [

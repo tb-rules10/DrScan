@@ -4,6 +4,7 @@ import 'package:dr_scan/pages/HomeScreen.dart';
 import 'package:dr_scan/pages/OnboardingScreen.dart';
 import 'package:dr_scan/pages/ReportScreen.dart';
 import 'package:dr_scan/pages/SettingsScreen.dart';
+import 'package:dr_scan/pages/ShowPatientsScreen.dart';
 import 'package:flutter/material.dart';
 import 'constants/theme.dart';
 
@@ -31,8 +32,9 @@ class BeKushal extends StatelessWidget {
           AuthenticationScreen.id: (context) => AuthenticationScreen(),
           HomeScreen.id: (context) => HomeScreen(),
           PatientFormScreen.id: (context) => PatientFormScreen(),
-          // ReportScreen.id: (context) => ReportScreen()
           SettingsScreen.id:(context) => SettingsScreen(),
+          ShowPatientsScreen.id: (context) => ShowPatientsScreen(),
+
 
         },
     );

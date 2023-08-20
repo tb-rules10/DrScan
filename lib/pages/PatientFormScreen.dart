@@ -23,11 +23,12 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   int _currentStep = 0;
   StepperType stepperType = StepperType.vertical;
   final _step1Key = GlobalKey<FormState>();
-  final _step3Key = GlobalKey<FormState>();
+  final _step4Key = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool checkStep1 = false;
   bool checkStep2 = false;
   bool checkStep3 = false;
+  bool checkStep4 = false;
   TextEditingController _nameController = TextEditingController();
   TextEditingController _heightController = TextEditingController();
   TextEditingController _weightController = TextEditingController();
@@ -50,31 +51,58 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   static late String _hasDiabetes;
   static late String _hasBreathShortness;
   static late String _mMRCgrade;
+  List<int> catValues = List<int>.filled(8, 0);
   final List<String> _genderOptions = ['Male', 'Female', 'Other'];
   final List<String> _smokingOptions = ['Passive Smoker', 'Current Smoker', 'Non Smoker', 'Ex Smoker'];
   final List<String> _smokingPreference = ['Cigarette', 'Bidi', 'Ganja', 'Biomass Fuel'];
   final List<String> _mMRCgrading = ['Get breathless with strenuous exercise', 'Breath shortness when hurrying or walking up a slight hill', 'Walk slower than people of your age because of breathlessness', 'Stop for breath after walking about 100 yards or after a few minutes on level ground', 'Too breathless to leave the house or breathless while dressing/undressing'];
+  final List<String> catOptions = [
+    "I never cough",
+    "I have no phlegm in my chest at all",
+    "My chest does not feel tight at all",
+    "When I walk up a hill or one flight of stairs I am not breathless",
+    "I am not limited doing any activities at home",
+    "I am confident leaving my home despite my lung condition",
+    "I sleep soundly",
+    "I have lots of energy",
+  ];
 
+  void onCatValueChanged(int catIndex, int value) {
+    setState(() {
+      catValues[catIndex] = value;
+    });
+  }
   void checkStep1Complete(){
     setState(() => checkStep1 = _step1Key.currentState!.validate());
   }
   void checkStep2Complete(){
+    // print((_smokerIndex == 1) ? true : _smokerTypeIndex != -1);
     checkStep2 = (_smokerIndex != -1 &&
         _alcoholIndex != -1 &&
-        (_smokerIndex == 1) ? true : _smokerTypeIndex != -1 &&
+        (_smokerIndex == 2) ? true : _smokerTypeIndex != -1 &&
         _expectorationIndex != -1 &&
         _diabetesIndex != -1 &&
         _breathShortnessIndex != -1 &&
         _mMRCIndex != -1);
     setState(() => checkStep2);
-    if(!checkStep2) {
+    check(checkStep2);
+  }
+  void checkStep3Complete(){
+    setState(() {
+      checkStep3 = !catValues.contains(-1);
+    });
+    check(checkStep3);
+  }
+  void checkStep4Complete(){
+    setState(() => checkStep4 = _step4Key.currentState!.validate());
+  }
+  void check(bool checkStep) {
+    if(!checkStep) {
+      print("asdas");
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Answer all the Questions"))
       );
     }
-  }
-  void checkStep3Complete(){
-    setState(() => checkStep3 = _step3Key.currentState!.validate());
   }
 
   String? validateName(String? value) {
@@ -136,6 +164,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   }
 
   onStepContinue() async {
+    print(_currentStep);
     switch(_currentStep){
       case 0:
         checkStep1Complete();
@@ -152,9 +181,20 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
       case 2:
         checkStep3Complete();
         if(checkStep3) {
+          setState(() => _currentStep += 1);
+        }
+        break;
+      case 3:
+        print("click");
+        checkStep4Complete();
+        if(checkStep4) {
+          checkStep3Complete();
           checkStep2Complete();
           checkStep1Complete();
-          if(!checkStep2){
+          if(!checkStep3){
+            setState(() => _currentStep = 2);
+          }
+          else if(!checkStep2){
             setState(() => _currentStep = 1);
           }
           else if(!checkStep1){
@@ -199,6 +239,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
         hasBreathShortness: _hasBreathShortness,
         hasDiabetes: _hasDiabetes,
         mMRCgrade: int. parse(_mMRCgrade),
+        catValues: catValues,
         fev1PreBD: double.parse(_fev1Controller.text),
         fev1FVCPostBD: double.parse(_fev1_fvcCntroller.text),
       );
@@ -213,7 +254,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
           url,
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(jsonData)
-      ).timeout(const Duration(seconds: 5));
+      ).timeout(const Duration(seconds: 10));
       Map<String, dynamic> temp = await json.decode(response.body);
       patientData.goldGrade = temp['Gold Grade'];
       print(temp);
@@ -296,7 +337,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                                 children: [
                                   ElevatedButton(
                                     onPressed: onStepContinue,
-                                    child: Text(_currentStep < 2 ? "NEXT" : "SUBMIT"),
+                                    child: Text(_currentStep < 3 ? "NEXT" : "SUBMIT"),
                                   ),
                                   SizedBox(width: 10.0,),
                                   TextButton(
@@ -587,6 +628,39 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                             ),
                             Step(
                               title: Text(
+                                "CAT Assessment",
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 22,
+                                  color: (_currentStep == 1) ? null : Colors.grey,
+                                ),
+                              ),
+                              content: Column(
+                                children: <Widget>[
+                                  for (int catIndex = 0; catIndex < 8; catIndex++)
+                                    Padding(
+                                      padding: (catIndex == 7) ? EdgeInsets.only(bottom: 5.0) : EdgeInsets.only(bottom: 20.0),
+                                      child: buildToggleButton(
+                                        context,
+                                        catValues[catIndex],
+                                        catOptions[catIndex],
+                                        ["0", "1", "2", "3", "4", "5"],
+                                            (index) {
+                                          print(index);
+                                          onCatValueChanged(catIndex, index!);
+                                        },
+                                        toggleSwitches: 6,
+                                        height: 50,
+                                      ),
+                                    ),
+
+                                ],
+                              ),
+                              isActive: _currentStep >= 0,
+                              state: checkStep3? StepState.complete : StepState.indexed,
+                            ),
+                            Step(
+                              title: Text(
                                 "Report Info",
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.w500,
@@ -595,7 +669,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                                 ),
                               ),
                               content: Form(
-                                key: _step3Key,
+                                key: _step4Key,
                                 child: Column(
                                   children: <Widget>[
                                     buildTextFormField(
@@ -615,7 +689,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                                 ),
                               ),
                               isActive:_currentStep >= 0,
-                              state: checkStep3 ? StepState.complete : StepState.indexed,
+                              state: checkStep4 ? StepState.complete : StepState.indexed,
                             ),
                           ],
                         ),

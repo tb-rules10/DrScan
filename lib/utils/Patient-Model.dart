@@ -14,6 +14,7 @@ class PatientData {
   double fev1PreBD;
   double fev1FVCPostBD;
   int? goldGrade;
+  List<int> catValues;
 
   PatientData({
     required this.name,
@@ -30,6 +31,7 @@ class PatientData {
     required this.mMRCgrade,
     required this.fev1PreBD,
     required this.fev1FVCPostBD,
+    required this.catValues,
     this.goldGrade = null,
   });
 
@@ -47,6 +49,7 @@ class PatientData {
       'CIGARETTE/BIDI/GANJA': smokerType,
       'ALCOHOL USE': alcoholConsumer,
       'mMRC GRADE': mMRCgrade,
+      'Cat Values': catValues,
       '(FEV1 PRE BD) %PRED': fev1PreBD,
       '(FEV1/FVC POST BD ) L/SEC': fev1FVCPostBD,
       'Gold Grade': goldGrade,
@@ -67,6 +70,7 @@ class PatientData {
       smokerType: json['CIGARETTE/BIDI/GANJA'],
       alcoholConsumer: json['ALCOHOL USE'],
       mMRCgrade: json['mMRC GRADE'],
+      catValues: json['Cat Values'],
       fev1PreBD: json['(FEV1 PRE BD) %PRED'],
       fev1FVCPostBD: json['(FEV1/FVC POST BD ) L/SEC'],
       goldGrade: json['Gold Grade'],
