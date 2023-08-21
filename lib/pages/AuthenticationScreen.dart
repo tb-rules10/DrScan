@@ -59,7 +59,7 @@ class AuthenticationScreen extends StatelessWidget {
               SizedBox(height: height*0.045),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, HomeScreen.id);
+                  Navigator.pushReplacementNamed(context, HomeScreen.id);
                 },
                 style: ButtonStyle(
                   fixedSize: MaterialStateProperty.all(
