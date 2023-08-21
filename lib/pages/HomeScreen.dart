@@ -4,13 +4,14 @@ import 'package:dr_scan/pages/SettingsScreen.dart';
 import 'package:dr_scan/pages/ShowPatientsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
 import 'package:open_file/open_file.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../components/homeScreenButtons.dart';
 import '../constants/textStyles.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../utils/PageTransition.dart';
+import 'OnboardingScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   static String id = "HomeScreen";
@@ -22,8 +23,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  
   @override
-
   Future<void> downloadFile(BuildContext context) async {
     print("Sending  download request");
     final url = 'http://10.0.2.2:5000/api/fetchData';
@@ -139,10 +140,34 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                'Future Scope',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+              // Text(
+              //   'Future Scope',
+              //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              // ),
+              // SizedBox(height: 10,),
+              TextButton(
+                onPressed: () async {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  prefs.setBool("loggedIn", false);
+                  Navigator.pushNamedAndRemoveUntil(context, OnboardingScreen.id, ModalRoute.withName(HomeScreen.id));
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.black), // button background color
+                        foregroundColor: MaterialStateProperty.all<Color>(Colors.white), // button text color
+                        padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(horizontal: 60, vertical: 13)), // button padding
+                        textStyle: MaterialStateProperty.all<TextStyle>(TextStyle(fontSize: 16)), // button text style
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), // button shape
+                      ),
+                      child: Text(
+                        "Sign Out",
+                        style: GoogleFonts.outfit(
+                          textStyle: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 28.0,
+                          ),
+                        )
+                      ),
+                    )
             ],
           ),
         ),
