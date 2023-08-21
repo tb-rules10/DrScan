@@ -202,7 +202,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
             await handleFormSubmit();
             patientData.printInfo();
             // Push to next page
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => ReportScreen(
                 patientData: patientData,
