@@ -51,7 +51,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   static late String _hasDiabetes;
   static late String _hasBreathShortness;
   static late String _mMRCgrade;
-  List<int> catValues = List<int>.filled(8, 0);
+  List<int> catValues = List<int>.filled(8, -1);
   final List<String> _genderOptions = ['Male', 'Female', 'Other'];
   final List<String> _smokingOptions = ['Passive Smoker', 'Current Smoker', 'Non Smoker', 'Ex Smoker'];
   final List<String> _smokingPreference = ['Cigarette', 'Bidi', 'Ganja', 'Biomass Fuel'];
@@ -76,7 +76,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     setState(() => checkStep1 = _step1Key.currentState!.validate());
   }
   void checkStep2Complete(){
-    // print((_smokerIndex == 1) ? true : _smokerTypeIndex != -1);
     checkStep2 = (_smokerIndex != -1 &&
         _alcoholIndex != -1 &&
         (_smokerIndex == 2) ? true : _smokerTypeIndex != -1 &&
@@ -98,7 +97,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   }
   void check(bool checkStep) {
     if(!checkStep) {
-      print("asdas");
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Answer all the Questions"))
       );
@@ -164,7 +162,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   }
 
   onStepContinue() async {
-    print(_currentStep);
     switch(_currentStep){
       case 0:
         checkStep1Complete();
@@ -185,7 +182,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
         }
         break;
       case 3:
-        print("click");
         checkStep4Complete();
         if(checkStep4) {
           checkStep3Complete();
@@ -203,9 +199,10 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
           else{
             print("Form Completed");
             FocusScope.of(context).unfocus();
-            handleFormSubmit();
+            await handleFormSubmit();
+            patientData.printInfo();
             // Push to next page
-            Navigator.pushReplacement(
+            Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ReportScreen(
                 patientData: patientData,
@@ -224,7 +221,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     setState(() => _currentStep -= 1) : null;
   }
 
-  void handleFormSubmit(){
+  Future<void> handleFormSubmit()async {
     setState(() {
       patientData = PatientData(
         name: _nameController.text,
@@ -244,7 +241,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
         fev1FVCPostBD: double.parse(_fev1_fvcCntroller.text),
       );
     });
-    sendPatientData("copdPrediction");
+    await sendPatientData("copdPrediction");
   }
   Future<void> sendPatientData(String urlPostfix) async {
     try {
@@ -256,8 +253,10 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
           body: jsonEncode(jsonData)
       ).timeout(const Duration(seconds: 10));
       Map<String, dynamic> temp = await json.decode(response.body);
-      patientData.goldGrade = temp['Gold Grade'];
-      print(temp);
+      setState(() {
+        patientData.goldGrade = temp['data']['Gold Grade'];
+      });
+      // print(temp);
     } catch (e) {
       print(e);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -398,7 +397,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                                         "Gender",
                                         _genderOptions,
                                             (index){
-                                          print(index);
                                           setState(() {
                                             _genderIndex = index!;
                                             _gender = _genderOptions[_genderIndex];
@@ -430,7 +428,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                                       // "Do you smoke?",
                                       _smokingOptions,
                                           (index){
-                                        print(index);
                                         setState(() {
                                           _smokerIndex = index!;
                                           _smoker = _smokingOptions[_smokerIndex];
@@ -451,7 +448,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                                             // "Type of Smoking",
                                             _smokingPreference,
                                                 (index){
-                                              print(index);
                                               setState(() {
                                                 _smokerTypeIndex = index!;
                                                 _smokerType = _smokingPreference[_smokerTypeIndex];
@@ -471,7 +467,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                                       "Alcohol Consumer",
                                       ["Yes", "No"],
                                           (index){
-                                        print(index);
                                         setState(() {
                                           _alcoholIndex = index!;
                                           _alcoholConsumer = ["Yes", "No"][_alcoholIndex];
@@ -487,7 +482,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                                       // "Do you have any expectoration?",
                                       ["Yes", "No"],
                                           (index){
-                                        print(index);
                                         setState(() {
                                           _expectorationIndex = index!;
                                           _hasExpectoration = ["Yes", "No"][_expectorationIndex];
@@ -503,7 +497,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                                       // "Do you have any expectoration?",
                                       ["Yes", "No"],
                                           (index){
-                                        print(index);
                                         setState(() {
                                           _breathShortnessIndex = index!;
                                           _hasBreathShortness = ["Yes", "No"][_breathShortnessIndex];
@@ -519,7 +512,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                                       // "Do you have any expectoration?",
                                       ["Yes", "No"],
                                           (index){
-                                        print(index);
                                         setState(() {
                                           _diabetesIndex = index!;
                                           _hasDiabetes = ["Yes", "No"][_diabetesIndex];
@@ -646,7 +638,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                                         catOptions[catIndex],
                                         ["0", "1", "2", "3", "4", "5"],
                                             (index) {
-                                          print(index);
                                           onCatValueChanged(catIndex, index!);
                                         },
                                         toggleSwitches: 6,

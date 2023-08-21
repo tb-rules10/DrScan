@@ -76,4 +76,27 @@ class PatientData {
       goldGrade: json['Gold Grade'],
     );
   }
+
+  void printInfo() {
+    print('Name: $name');
+    print('Age: $age');
+    print('Gender: $gender');
+    print('Weight: $weight kg');
+    print('Height: $height cm');
+    print('Shortness of Breath: $hasBreathShortness');
+    print('Expectoration: $hasExpectoration');
+    print('Diabetes: $hasDiabetes');
+    print('Smoker: $smoker');
+    print('Smoker Type: $smokerType');
+    print('Alcohol Consumer: $alcoholConsumer');
+    print('mMRC Grade: $mMRCgrade');
+    print('Cat Values: $catValues');
+    print('(FEV1 Pre BD) %PRED: $fev1PreBD');
+    print('(FEV1/FVC Post BD) L/SEC: $fev1FVCPostBD');
+    if (goldGrade != null) {
+      print('Gold Grade: $goldGrade');
+    } else {
+      print('Gold Grade: Not available');
+    }
+  }
 }

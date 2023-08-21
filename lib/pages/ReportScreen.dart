@@ -20,11 +20,18 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print("**************");
+    widget.patientData.printInfo();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // debugPaintSizeEnabled = true;
     double height = MediaQuery.of(context).size.height;
-
     var _colorScheme = Theme.of(context).colorScheme;
     return SafeArea(
         child: Scaffold(

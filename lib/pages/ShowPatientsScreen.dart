@@ -21,13 +21,7 @@ class _ShowPatientsScreenState extends State<ShowPatientsScreen> {
             floating: true,
             pinned: true,
             leading: GestureDetector(
-              onTap: () =>  ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Double tap to exit, your progress will be lost."),)
-              ),
-              onDoubleTap: () {
-                ScaffoldMessenger.of(context).removeCurrentSnackBar();
-                Navigator.pop(context);
-              },
+              onTap: () =>  Navigator.pop(context),
               child: const Icon(
                 Icons.arrow_back,
                 color: Colors.white,
