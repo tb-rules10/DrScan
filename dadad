@@ -1,0 +1,60 @@
+[33mcommit d2eef6912c2fda32cc97aafa83c5de4aa5f13bce[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Merge: 84d0974 86f9a34
+Author: tb-rules10 <tanishq.bhatt10@gmail.com>
+Date:   Tue Aug 22 09:39:35 2023 +0530
+
+    connected to render
+
+[33mcommit 84d097434c67a4c10d77c75106f238903fe36d28[m
+Author: tb-rules10 <tanishq.bhatt10@gmail.com>
+Date:   Tue Aug 22 09:36:48 2023 +0530
+
+    connected to render
+
+[33mcommit 86f9a3470b2d2934a7733617007d86b87e0c1bce[m
+Author: AkshGupta2003 <gupta17aksh@gmail.com>
+Date:   Mon Aug 21 23:48:30 2023 +0530
+
+    login-logout done and login connectin with homepage
+
+[33mcommit 0b40f941e32955a27109ba7af24ce5e0bfa5da19[m
+Author: Tanishq Bhatt <58645688+tb-rules10@users.noreply.github.com>
+Date:   Mon Aug 21 13:26:59 2023 +0530
+
+    Update AuthenticationScreen.dart
+
+[33mcommit 3f2c204b85ea05743da56f3694db7b21bf6cee14[m
+Author: Tanishq Bhatt <58645688+tb-rules10@users.noreply.github.com>
+Date:   Mon Aug 21 13:24:01 2023 +0530
+
+    Update PatientFormScreen.dart
+
+[33mcommit a8d2cc566de3ace48e236c227e9951ca4833f7bf[m
+Author: tb-rules10 <tanishq.bhatt10@gmail.com>
+Date:   Mon Aug 21 11:38:01 2023 +0530
+
+    fixed server error
+
+[33mcommit 138975c32b4550e65e6af3a01ecd06683f01689c[m
+Author: tb-rules10 <tanishq.bhatt10@gmail.com>
+Date:   Sun Aug 20 23:57:11 2023 +0530
+
+    navigation added
+
+[33mcommit 64a11af64881506480dd5485d51bad7d62e7bb85[m
+Author: AkshGupta2003 <gupta17aksh@gmail.com>
+Date:   Thu Aug 10 23:53:20 2023 +0530
+
+    setting and report page added
+
+[33mcommit b72caaeb72e2c414c6614f9296e262e9ae1f9011[m
+Author: tb-rules10 <tanishq.bhatt10@gmail.com>
+Date:   Tue Aug 8 00:47:44 2023 +0530
+
+    patient form complete
+
+[33mcommit 9b0f3f634991cf177890d42ded6fc9cb000b98af[m
+Author: tb-rules10 <tanishq.bhatt10@gmail.com>
+Date:   Tue Aug 1 23:10:50 2023 +0530
+
+    first commit

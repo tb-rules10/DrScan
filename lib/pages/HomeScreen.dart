@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
     print(savePath);
     final dio = Dio();
     try {
-      await dio.download(url, savePath);
+      await dio.download(url, savePath).timeout(const Duration(seconds: 5));
       print('File downloaded successfully');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('File downloaded successfully at - ${savePath}')),
