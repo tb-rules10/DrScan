@@ -1,18 +1,30 @@
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'HomeScreen.dart';
 
-class AuthenticationScreen extends StatelessWidget {
+class AuthenticationScreen extends StatefulWidget {
   static String id = "AuthenticationScreen";
+
   const AuthenticationScreen({Key? key}) : super(key: key);
 
   @override
+  _AuthenticationScreenState createState() => _AuthenticationScreenState();
+}
+
+class _AuthenticationScreenState extends State<AuthenticationScreen> {
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+  String errorMessage = '';
+
+  // Valid user credentials
+  String validEmail = "abhinav123@gmail.com";
+  String validPassword = "abhinav123";
+
+  @override
   Widget build(BuildContext context) {
-    TextEditingController _emailController = TextEditingController();
-    TextEditingController _passwordController = TextEditingController();
     double height = MediaQuery.of(context).size.height;
-    double width = MediaQuery.of(context).size.width;
-    // SystemChrome.setPreferredOrientations(po)
+
     return Scaffold(
       backgroundColor: Color(0xffFFFFFF),
       body: SafeArea(
@@ -20,7 +32,8 @@ class AuthenticationScreen extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                padding: EdgeInsets.fromLTRB(0,height*0.15,0,height*0.037),
+                padding:
+                    EdgeInsets.fromLTRB(0, height * 0.15, 0, height * 0.037),
                 child: Center(
                   child: Text(
                     'DrScan',
@@ -43,23 +56,35 @@ class AuthenticationScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                height: height*0.12,
+                height: height * 0.12,
               ),
               _buildTextFieldWithLabelAndIcon(
                 label: 'Email',
                 controller: _emailController,
                 icon: Icons.email,
               ),
-              SizedBox(height: height*0.02),
+              SizedBox(height: height * 0.02),
               _buildTextFieldWithLabelAndIcon(
                 label: 'Password',
                 controller: _passwordController,
                 icon: Icons.lock,
               ),
-              SizedBox(height: height*0.045),
+              SizedBox(height: height * 0.045),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, HomeScreen.id);
+                onPressed: () async {
+                  if (_emailController.text.trim() == validEmail &&
+                      _passwordController.text.trim() == validPassword) {
+                    // Navigate to home screen
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    prefs.setBool("loggedIn", true);
+
+                    Navigator.pushReplacementNamed(context, HomeScreen.id);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Invalid email or password")),
+                    );
+                  }
                 },
                 style: ButtonStyle(
                   fixedSize: MaterialStateProperty.all(
@@ -82,7 +107,9 @@ class AuthenticationScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: height*0.170,),
+              SizedBox(
+                height: height * 0.170,
+              ),
               const Text.rich(
                 TextSpan(
                   text: 'Already have an account? ',
@@ -99,13 +126,13 @@ class AuthenticationScreen extends StatelessWidget {
                         fontFamily: 'Inter',
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xff0175ff), // Set your desired color for "Register" text
+                        color: Color(
+                            0xff0175ff), // Set your desired color for "Register" text
                       ),
                     ),
                   ],
                 ),
               ),
-
             ],
           ),
         ),
@@ -144,17 +171,17 @@ Widget _buildTextFieldWithLabelAndIcon({
           duration: Duration(milliseconds: 200),
           child: controller.text.isEmpty
               ? Padding(
-            padding: const EdgeInsets.fromLTRB(3, 5, 0, 5),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff827D7D),
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          )
+                  padding: const EdgeInsets.fromLTRB(3, 5, 0, 5),
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xff827D7D),
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                )
               : SizedBox.shrink(),
         ),
       ),
