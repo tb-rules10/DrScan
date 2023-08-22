@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:dr_scan/backendURL.dart';
 import 'package:dr_scan/pages/PatientFormScreen.dart';
 import 'package:dr_scan/pages/SettingsScreen.dart';
 import 'package:dr_scan/pages/ShowPatientsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:open_file/open_file.dart';
 import '../components/homeScreenButtons.dart';
 import '../constants/textStyles.dart';
@@ -21,12 +23,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool isLoading = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
 
   Future<void> downloadFile(BuildContext context) async {
     print("Sending  download request");
-    final url = 'http://10.0.2.2:5000/api/fetchData';
+    const url = '${backendURL}/fetchData';
     final dir = await getExternalStorageDirectory();
     final savePath = dir!.path + '/patient_data.xlsx';
     print(savePath);
@@ -42,6 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
       OpenFile.open(savePath);
     } catch (e) {
       print('Download error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('An error occurred. Please try again later.'))
+      );
     }
   }
 
@@ -51,85 +57,94 @@ class _HomeScreenState extends State<HomeScreen> {
     var _colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       key: _scaffoldKey,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children:[
-                  const CircleAvatar(
-                    radius: 32,
-                    backgroundImage: NetworkImage(
-                        "https://img.freepik.com/free-vector/doctor-character-background_1270-84.jpg"),
-                  ),
-                  GestureDetector(
-                    onTap: (){
-                      _scaffoldKey.currentState?.openEndDrawer();
-                    },
-                    child: Image.asset(
-                      "assets/images/button-removebg-preview.png",
-                      height: 45,
+      body: ModalProgressHUD(
+        inAsyncCall: isLoading,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children:[
+                    const CircleAvatar(
+                      radius: 32,
+                      backgroundImage: NetworkImage(
+                          "https://img.freepik.com/free-vector/doctor-character-background_1270-84.jpg"),
                     ),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 25,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Hello,",
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 24
+                    GestureDetector(
+                      onTap: (){
+                        _scaffoldKey.currentState?.openEndDrawer();
+                      },
+                      child: Image.asset(
+                        "assets/images/button-removebg-preview.png",
+                        height: 45,
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Hello,",
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 24
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 3,
-                    width: width,
-                  ),
-                  Text(
-                    "Doctor Abhinav",
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 30
+                    SizedBox(
+                      height: 3,
+                      width: width,
                     ),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 25,
-              ),
-              buildBlackButton(context, _colorScheme),
-              SizedBox(
-                height: 30,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  WhiteButton(
-                    height: height, width: width,
-                    heading: "See your Result",
-                    subHeading: "Lorem iipsem somethin text",
-                    onTap: (){
-                      Navigator.pushNamed(context, ShowPatientsScreen.id);
-                    },
-                  ),
-                  WhiteButton(
-                    height: height, width: width,
-                    heading: "Data Information",
-                    subHeading: "Download the recorded patient data",
-                    onTap: () {
-                      downloadFile(context);
-                    },
-                  ),
-                ],
-              )
-            ],
+                    Text(
+                      "Doctor Abhinav",
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 30
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                buildBlackButton(context, _colorScheme),
+                SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    WhiteButton(
+                      height: height, width: width,
+                      heading: "See your Result",
+                      subHeading: "Lorem iipsem somethin text",
+                      onTap: (){
+                        Navigator.pushNamed(context, ShowPatientsScreen.id);
+                      },
+                    ),
+                    WhiteButton(
+                      height: height, width: width,
+                      heading: "Data Information",
+                      subHeading: "Download the recorded patient data",
+                      onTap: () async {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        await downloadFile(context);
+                        setState(() {
+                          isLoading = false;
+                        });
+                      },
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
