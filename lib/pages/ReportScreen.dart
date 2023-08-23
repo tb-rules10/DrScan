@@ -297,7 +297,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     ),
                       
                     // 2nd one
-                    parsescreen("SMOKER", widget.patientData.smoker),
+                    parsescreen("SMOKER", widget.patientData.smoker, "Smoke Free.png"),
                     const SizedBox(
                       height: 20,
                     ),
@@ -307,7 +307,7 @@ class _ReportScreenState extends State<ReportScreen> {
                       child: Column(
                         children: [
                           parsescreen(
-                              "SMOKING METHOD", widget.patientData.smokerType),
+                              "SMOKING METHOD", widget.patientData.smokerType, "Smoke Free.png"),
                           const SizedBox(
                             height: 20,
                           ),
@@ -315,23 +315,23 @@ class _ReportScreenState extends State<ReportScreen> {
                       ),
                     ),
                       
-                    parsescreen("ALCOHOL", widget.patientData.alcoholConsumer),
+                    parsescreen("ALCOHOL", widget.patientData.alcoholConsumer, "wine.png"),
                     const SizedBox(
                       height: 20,
                     ),
                       
-                    parsescreen("MUCUS", widget.patientData.hasExpectoration),
+                    parsescreen("MUCUS", widget.patientData.hasExpectoration, "mucus.png"),
                     const SizedBox(
                       height: 20,
                     ),
                       
                     parsescreen(
-                        "BREATHSHORTNESS", widget.patientData.hasBreathShortness),
+                        "BREATHSHORTNESS", widget.patientData.hasBreathShortness, "breathless.png"),
                     const SizedBox(
                       height: 20,
                     ),
                       
-                    parsescreen("DIABETES", widget.patientData.hasDiabetes),
+                    parsescreen("DIABETES", widget.patientData.hasDiabetes, "diabetes.png"),
                     SizedBox(height: 20,),
                       
                     // parsescreen("MUCUS", "YES"),
@@ -345,7 +345,7 @@ class _ReportScreenState extends State<ReportScreen> {
     // );
   }
 
-  Container parsescreen(String headText, String value) {
+  Container parsescreen(String headText, String value, String image) {
     double width = MediaQuery.of(context).size.width;
     return Container(
       width: width * 0.8,
@@ -361,7 +361,7 @@ class _ReportScreenState extends State<ReportScreen> {
           children: [
             Row(
               children: [
-                Image.asset('assets/images/Smoke Free.png'),
+                Image.asset('assets/images/$image'),
                 SizedBox(width: 20,),
                 Text(
                   headText,
