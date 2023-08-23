@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'package:dr_scan/backendURL.dart';
 import 'package:http/http.dart' as http;
-import 'package:dr_scan/constants/constants.dart';
 import 'package:dr_scan/utils/Patient-Model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-import '../constants/textStyles.dart';
 import 'ReportScreen.dart';
 
 class PatientFormScreen extends StatefulWidget {
@@ -27,17 +25,20 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   final _step1Key = GlobalKey<FormState>();
   final _step4Key = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  // Step Validation Controllers
   bool checkStep1 = false;
   bool checkStep2 = false;
   bool checkStep3 = false;
   bool checkStep4 = false;
   bool isLoading = false;
+  // User Input Controllers
   TextEditingController _nameController = TextEditingController();
   TextEditingController _heightController = TextEditingController();
   TextEditingController _weightController = TextEditingController();
   TextEditingController _ageController = TextEditingController();
   TextEditingController _fev1Controller = TextEditingController();
   TextEditingController _fev1_fvcCntroller = TextEditingController();
+  // Toggle Button Controllers
   static int _genderIndex = 2;
   static int _smokerIndex = -1;
   static int _alcoholIndex = -1;
@@ -54,7 +55,9 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   static late String _hasDiabetes;
   static late String _hasBreathShortness;
   static late String _mMRCgrade;
+  // Cat Value Controller
   List<int> catValues = List<int>.filled(8, -1);
+  // Options for toggle buttons
   final List<String> _genderOptions = ['Male', 'Female', 'Other'];
   final List<String> _smokingOptions = ['Passive Smoker', 'Current Smoker', 'Non Smoker', 'Ex Smoker'];
   final List<String> _smokingPreference = ['Cigarette', 'Bidi', 'Ganja', 'Biomass Fuel'];
@@ -70,11 +73,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     "I have lots of energy",
   ];
 
-  void onCatValueChanged(int catIndex, int value) {
-    setState(() {
-      catValues[catIndex] = value;
-    });
-  }
+  // Check & Validate if all steps are complete
   void checkStep1Complete(){
     setState(() => checkStep1 = _step1Key.currentState!.validate());
   }
@@ -98,6 +97,8 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   void checkStep4Complete(){
     setState(() => checkStep4 = _step4Key.currentState!.validate());
   }
+
+  // Show validation message if step not completed
   void check(bool checkStep) {
     if(!checkStep) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -106,6 +107,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     }
   }
 
+  // Validation Functions
   String? validateName(String? value) {
     if (value == null || value.isEmpty) {
       return 'Name is required';
@@ -163,7 +165,14 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     }
     return null;
   }
+  // Update and keep a track of cat values
+  void onCatValueChanged(int catIndex, int value) {
+    setState(() {
+      catValues[catIndex] = value;
+    });
+  }
 
+  // Stepper Functions
   onStepContinue() async {
     switch(_currentStep){
       case 0:
@@ -187,6 +196,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
       case 3:
         checkStep4Complete();
         if(checkStep4) {
+          // Check if all the steps are complete, else redirect to that step
           checkStep3Complete();
           checkStep2Complete();
           checkStep1Complete();
@@ -226,6 +236,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     setState(() => _currentStep -= 1) : null;
   }
 
+  // Prepare and send form data
   Future<bool> handleFormSubmit()async {
     setState(() {
       patientData = PatientData(
@@ -248,6 +259,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     });
     return await sendPatientData("copdPrediction");
   }
+  // Send patient data to backend
   Future<bool> sendPatientData(String urlPostfix) async {
     try {
       final url = Uri.parse('$backendURL/$urlPostfix');
@@ -273,6 +285,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     }
   }
 
+  // Handle back button
   Future<bool> onWillPop() {
     DateTime now = DateTime.now();
     if (currentBackPressTime == null ||
@@ -292,6 +305,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     var _colorScheme = Theme.of(context).colorScheme;
+    // To show loading animation
     return ModalProgressHUD(
       inAsyncCall: isLoading,
       child: SafeArea(
@@ -299,6 +313,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
           key: _scaffoldKey,
           body: WillPopScope(
             onWillPop: onWillPop,
+            // To provide an animated app bar
             child: CustomScrollView(
               slivers: [
                 SliverAppBar(
@@ -337,8 +352,8 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                             onStepTapped: (step) => onStepTapped(step),
                             onStepContinue:  onStepContinue,
                             onStepCancel: onStepCancel,
+                            // Build Custon Controls for our stepper
                             controlsBuilder: (BuildContext context, ControlsDetails details) {
-                              // return SizedBox.shrink();
                               return Padding(
                                 padding: const EdgeInsets.only(top: 15.0),
                                 child: Row(
@@ -694,7 +709,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 150,)
+                          const SizedBox(height: 150,)
                         ],
                       )
                   ),
@@ -707,6 +722,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     );
   }
 
+  // Function to Build Toggle Buttons
   Column buildToggleButton(BuildContext context, int initialLabelIndex, String buttonLabel, List<String> toggleOptions, void Function(int?)? onChanged, {int? toggleSwitches, double? height}) {
     return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -740,7 +756,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                           ],
                         );
   }
-
+  // Function to build Text Input Fields
   Widget buildTextFormField(TextEditingController myController, String label, {TextInputType? keyboardType, List<TextInputFormatter>? inputFormatters, String? Function(String?)? validator}) {
     return Padding(
       padding: const EdgeInsets.only(top: 5.0),
