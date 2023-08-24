@@ -5,7 +5,6 @@ import 'package:dr_scan/utils/Patient-Model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-// import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'ReportScreen.dart';
@@ -24,6 +23,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   int _currentStep = 0;
   StepperType stepperType = StepperType.vertical;
   final _step1Key = GlobalKey<FormState>();
+  final _step2Key = GlobalKey<FormState>();
   final _step4Key = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   // Step Validation Controllers
@@ -39,6 +39,8 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   TextEditingController _ageController = TextEditingController();
   TextEditingController _fev1Controller = TextEditingController();
   TextEditingController _fev1_fvcCntroller = TextEditingController();
+  TextEditingController _smokingYearsController = TextEditingController();
+  TextEditingController _packetsPerDayController = TextEditingController();
   // Toggle Button Controllers
   static int _genderIndex = 2;
   static int _smokerIndex = -1;
@@ -48,6 +50,8 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   static int _breathShortnessIndex = -1;
   static int _diabetesIndex = -1;
   static int _mMRCIndex = -1;
+  // Cat Value Controller
+  List<int> catValues = List<int>.filled(8, -1);
   static late String _gender = "Other";
   static late String _smoker = "Non Smoker";
   static late String _smokerType = "NONE";
@@ -56,8 +60,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   static late String _hasDiabetes;
   static late String _hasBreathShortness;
   static late String _mMRCgrade;
-  // Cat Value Controller
-  List<int> catValues = List<int>.filled(8, -1);
   // Options for toggle buttons
   final List<String> _genderOptions = ['Male', 'Female', 'Other'];
   final List<String> _smokingOptions = ['Passive Smoker', 'Current Smoker', 'Non Smoker', 'Ex Smoker'];
@@ -74,6 +76,30 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     "I have lots of energy",
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _genderIndex = 2;
+    _smokerIndex = -1;
+    _alcoholIndex = -1;
+    _smokerTypeIndex = -1;
+    _expectorationIndex = -1;
+    _breathShortnessIndex = -1;
+    _diabetesIndex = -1;
+    _mMRCIndex = -1;
+    catValues = List<int>.filled(8, -1);
+  }
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _heightController.dispose();
+    _weightController.dispose();
+    _ageController.dispose();
+    _fev1Controller.dispose();
+    _fev1_fvcCntroller.dispose();
+    super.dispose();
+  }
+
   // Check & Validate if all steps are complete
   void checkStep1Complete(){
     setState(() => checkStep1 = _step1Key.currentState!.validate());
@@ -85,7 +111,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
         _expectorationIndex != -1 &&
         _diabetesIndex != -1 &&
         _breathShortnessIndex != -1 &&
-        _mMRCIndex != -1);
+        _mMRCIndex != -1 &&  _step2Key.currentState!.validate());
     setState(() => checkStep2);
     check(checkStep2);
   }
@@ -166,6 +192,31 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     }
     return null;
   }
+  String? validateSmokingYears(String? value) {
+    if (_smoker != "Non Smoker" && _smokerIndex != -1) {
+      if (value == null || value.isEmpty) {
+        return 'Please enter the number of years smoked';
+      }
+      int years = int.tryParse(value) ?? 0;
+      if (years <= 0) {
+        return 'Please enter a valid number of years';
+      }
+    }
+    return null;
+  }
+  String? validatePacketsPerDay(String? value) {
+    if (_smoker != "Non Smoker" && _smokerIndex != -1) {
+      if (value == null || value.isEmpty) {
+        return 'Please enter the number of packets smoked per day';
+      }
+      int packets = int.tryParse(value) ?? 0;
+      if (packets <= 0) {
+        return 'Please enter a valid number of packets';
+      }
+    }
+    return null;
+  }
+
   // Update and keep a track of cat values
   void onCatValueChanged(int catIndex, int value) {
     setState(() {
@@ -240,6 +291,9 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   // Prepare and send form data
   Future<bool> handleFormSubmit()async {
     setState(() {
+      var smokingIndex = int.parse(_smokingYearsController.text) * int.parse(_packetsPerDayController.text);
+      print(smokingIndex);
+      print( _smoker == "Non Smoker" ? 0 : smokingIndex);
       patientData = PatientData(
         name: _nameController.text,
         age: int.parse(_ageController.text),
@@ -248,6 +302,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
         gender: _gender,
         smoker: _smoker,
         smokerType: _smoker == "Non Smoker" ? "NONE" : _smokerType,
+        smokingIndex: _smoker == "Non Smoker" ? 0 : smokingIndex,
         alcoholConsumer: _alcoholConsumer,
         hasExpectoration: _hasExpectoration,
         hasBreathShortness: _hasBreathShortness,
@@ -269,7 +324,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
           url,
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(jsonData)
-      ).timeout(const Duration(seconds: 10));
+      ).timeout(const Duration(seconds: 5));
       Map<String, dynamic> temp = await json.decode(response.body);
       setState(() {
         patientData.goldGrade = temp['data']['Gold Grade'];
@@ -329,7 +384,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                     onDoubleTap: () {
                       ScaffoldMessenger.of(context).removeCurrentSnackBar();
                       Navigator.pop(context);
-                      },
+                    },
                     child: const Icon(
                       Icons.arrow_back,
                       color: Colors.white,
@@ -353,7 +408,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                             onStepTapped: (step) => onStepTapped(step),
                             onStepContinue:  onStepContinue,
                             onStepCancel: onStepCancel,
-                            // Build Custon Controls for our stepper
+                            // Build Custom Controls for our stepper
                             controlsBuilder: (BuildContext context, ControlsDetails details) {
                               return Padding(
                                 padding: const EdgeInsets.only(top: 15.0),
@@ -388,7 +443,6 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                                     color: (_currentStep == 0) ? null : Colors.grey,
                                   ),
                                 ),
-
                                 content: Form(
                                   key: _step1Key,
                                   child: Column(
@@ -445,201 +499,230 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                                     color: (_currentStep == 1) ? null : Colors.grey,
                                   ),
                                 ),
-                                content: Column(
-                                  children: <Widget>[
-                                    buildToggleButton(
-                                        context,
-                                        _smokerIndex,
-                                        "Type of Smoker",
-                                        // "Do you smoke?",
-                                        _smokingOptions,
-                                            (index){
-                                          setState(() {
-                                            _smokerIndex = index!;
-                                            _smoker = _smokingOptions[_smokerIndex];
-                                          });
-                                        },
-                                        toggleSwitches: 4,
-                                        height: 50
-                                    ),
-                                    Visibility(
-                                      visible: (_smoker != "Non Smoker" && _smokerIndex!=-1),
-                                      child: Column(
+                                content: Form(
+                                  key: _step2Key,
+                                  child: Column(
+                                    children: <Widget>[
+                                      buildToggleButton(
+                                          context,
+                                          _smokerIndex,
+                                          "Type of Smoker",
+                                          // "Do you smoke?",
+                                          _smokingOptions,
+                                              (index){
+                                            setState(() {
+                                              _smokerIndex = index!;
+                                              _smoker = _smokingOptions[_smokerIndex];
+                                            });
+                                          },
+                                          toggleSwitches: 4,
+                                          height: 50
+                                      ),
+                                      Visibility(
+                                        visible: (_smoker != "Non Smoker" && _smokerIndex!=-1),
+                                        child: Column(
+                                          children: [
+                                            SizedBox(height: 20,),
+                                            buildToggleButton(
+                                                context,
+                                                _smokerTypeIndex,
+                                                "Preferred Smoking Method",
+                                                // "Type of Smoking",
+                                                _smokingPreference,
+                                                    (index){
+                                                  setState(() {
+                                                    _smokerTypeIndex = index!;
+                                                    _smokerType = _smokingPreference[_smokerTypeIndex];
+                                                  });
+                                                },
+                                                toggleSwitches: 4,
+                                                height: 50
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      Visibility(
+                                        visible: (_smoker != "Non Smoker" && _smokerIndex!=-1),
+                                        child: const SizedBox(height: 20,),
+                                      ),
+                                      Visibility(
+                                        visible: (_smoker != "Non Smoker" && _smokerIndex!=-1),
+                                        child: buildTextFormField(
+                                          _smokingYearsController, 'Number of Years Smoked',
+                                          validator: validateSmokingYears,
+                                          keyboardType: const TextInputType.numberWithOptions(decimal: false),
+                                          inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                                          ],),
+                                      ),
+                                      Visibility(
+                                        visible: (_smoker != "Non Smoker" && _smokerIndex!=-1),
+                                        child: const SizedBox(height: 20,),
+                                      ),
+                                      Visibility(
+                                        visible: (_smoker != "Non Smoker" && _smokerIndex!=-1),
+                                        child: buildTextFormField(
+                                          _packetsPerDayController, 'Packs of Cigarettes Smoked per Day',
+                                          validator: validatePacketsPerDay,
+                                          keyboardType: const TextInputType.numberWithOptions(decimal: false),
+                                          inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                                          ],),
+                                      ),
+                                      SizedBox(height: 20,),
+                                      buildToggleButton(
+                                          context,
+                                          _alcoholIndex,
+                                          // "Do you consume alcohol?",
+                                          "Alcohol Consumer",
+                                          ["Yes", "No"],
+                                              (index){
+                                            setState(() {
+                                              _alcoholIndex = index!;
+                                              _alcoholConsumer = ["Yes", "No"][_alcoholIndex];
+                                            });
+                                          },
+                                          toggleSwitches: 2
+                                      ),
+                                      SizedBox(height: 20,),
+                                      buildToggleButton(
+                                          context,
+                                          _expectorationIndex,
+                                          "Expectoration (Coughing and spitting out mucus)",
+                                          // "Do you have any expectoration?",
+                                          ["Yes", "No"],
+                                              (index){
+                                            setState(() {
+                                              _expectorationIndex = index!;
+                                              _hasExpectoration = ["Yes", "No"][_expectorationIndex];
+                                            });
+                                          },
+                                          toggleSwitches: 2
+                                      ),
+                                      SizedBox(height: 20,),
+                                      buildToggleButton(
+                                          context,
+                                          _breathShortnessIndex,
+                                          "Shortness of Breath",
+                                          // "Do you have any expectoration?",
+                                          ["Yes", "No"],
+                                              (index){
+                                            setState(() {
+                                              _breathShortnessIndex = index!;
+                                              _hasBreathShortness = ["Yes", "No"][_breathShortnessIndex];
+                                            });
+                                          },
+                                          toggleSwitches: 2
+                                      ),
+                                      SizedBox(height: 20,),
+                                      buildToggleButton(
+                                          context,
+                                          _diabetesIndex,
+                                          "Diabetic",
+                                          // "Do you have any expectoration?",
+                                          ["Yes", "No"],
+                                              (index){
+                                            setState(() {
+                                              _diabetesIndex = index!;
+                                              _hasDiabetes = ["Yes", "No"][_diabetesIndex];
+                                            });
+                                          },
+                                          toggleSwitches: 2
+                                      ),
+                                      SizedBox(height: 20,),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
-                                          SizedBox(height: 20,),
-                                          buildToggleButton(
-                                              context,
-                                              _smokerTypeIndex,
-                                              "Preferred Smoking Method",
-                                              // "Type of Smoking",
-                                              _smokingPreference,
-                                                  (index){
-                                                setState(() {
-                                                  _smokerTypeIndex = index!;
-                                                  _smokerType = _smokingPreference[_smokerTypeIndex];
-                                                });
-                                              },
-                                            toggleSwitches: 4,
-                                            height: 50
-                                          )
+                                          Text(
+                                            "mMRC Grade\n(Choose any one option from below)",
+                                            style: GoogleFonts.inter(
+                                              color: Colors.black54,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: (){
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: const Text("mMRC Grading Information", style: TextStyle(fontWeight: FontWeight.bold),),
+                                                      content: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          for (int i = 0; i < _mMRCgrading.length; i++)
+                                                            Column(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              children: [
+                                                                Padding(
+                                                                  padding: const EdgeInsets.only(top: 3.0,),
+                                                                  child: Row(
+                                                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                                                    children: [
+                                                                      const Icon(
+                                                                        Icons.circle,
+                                                                        color: Colors.black54,
+                                                                        size: 10,
+                                                                      ),
+                                                                      SizedBox(width: 5,),
+                                                                      Text(
+                                                                        "mMRC Grade $i",
+                                                                        style: TextStyle(fontWeight: FontWeight.w500),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                SizedBox(height: 8), // Add some space between subheading and info
+                                                                Text(_mMRCgrading[i]),
+                                                                SizedBox(height: 16), // Add space between each grade
+                                                              ],
+                                                            ),
+                                                        ],
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(context); // Close the dialog
+                                                          },
+                                                          child: Text("OK"),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  });
+                                            },
+                                            child: Icon(
+                                              Icons.info,
+                                              size: 28,
+                                            ),
+                                          ),
                                         ],
                                       ),
-                                    ),
-                                    SizedBox(height: 20,),
-                                    buildToggleButton(
-                                        context,
-                                        _alcoholIndex,
-                                        // "Do you consume alcohol?",
-                                        "Alcohol Consumer",
-                                        ["Yes", "No"],
-                                            (index){
-                                          setState(() {
-                                            _alcoholIndex = index!;
-                                            _alcoholConsumer = ["Yes", "No"][_alcoholIndex];
-                                          });
-                                        },
-                                        toggleSwitches: 2
-                                    ),
-                                    SizedBox(height: 20,),
-                                    buildToggleButton(
-                                        context,
-                                        _expectorationIndex,
-                                        "Expectoration (Coughing and spitting out mucus)",
-                                        // "Do you have any expectoration?",
-                                        ["Yes", "No"],
-                                            (index){
-                                          setState(() {
-                                            _expectorationIndex = index!;
-                                            _hasExpectoration = ["Yes", "No"][_expectorationIndex];
-                                          });
-                                        },
-                                        toggleSwitches: 2
-                                    ),
-                                    SizedBox(height: 20,),
-                                    buildToggleButton(
-                                        context,
-                                        _breathShortnessIndex,
-                                        "Shortness of Breath",
-                                        // "Do you have any expectoration?",
-                                        ["Yes", "No"],
-                                            (index){
-                                          setState(() {
-                                            _breathShortnessIndex = index!;
-                                            _hasBreathShortness = ["Yes", "No"][_breathShortnessIndex];
-                                          });
-                                        },
-                                        toggleSwitches: 2
-                                    ),
-                                    SizedBox(height: 20,),
-                                    buildToggleButton(
-                                        context,
-                                        _diabetesIndex,
-                                        "Diabetic",
-                                        // "Do you have any expectoration?",
-                                        ["Yes", "No"],
-                                            (index){
-                                          setState(() {
-                                            _diabetesIndex = index!;
-                                            _hasDiabetes = ["Yes", "No"][_diabetesIndex];
-                                          });
-                                        },
-                                        toggleSwitches: 2
-                                    ),
-                                    SizedBox(height: 20,),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          "mMRC Grade\n(Choose any one option from below)",
-                                          style: GoogleFonts.inter(
-                                            color: Colors.black54,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: (){
-                                            showDialog(
-                                                context: context,
-                                                builder: (BuildContext context) {
-                                                  return AlertDialog(
-                                                    title: Text("mMRC Grading Information", style: TextStyle(fontWeight: FontWeight.bold),),
-                                                    content: Column(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        for (int i = 0; i < _mMRCgrading.length; i++)
-                                                          Column(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                            children: [
-                                                              Padding(
-                                                                padding: const EdgeInsets.only(top: 3.0,),
-                                                                child: Row(
-                                                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                                                  children: [
-                                                                    Icon(
-                                                                      Icons.circle,
-                                                                      color: Colors.black54,
-                                                                      size: 10,
-                                                                    ),
-                                                                    SizedBox(width: 5,),
-                                                                    Text(
-                                                                      "mMRC Grade $i",
-                                                                      style: TextStyle(fontWeight: FontWeight.w500),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              SizedBox(height: 8), // Add some space between subheading and info
-                                                              Text(_mMRCgrading[i]),
-                                                              SizedBox(height: 16), // Add space between each grade
-                                                            ],
-                                                          ),
-                                                      ],
-                                                    ),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(context); // Close the dialog
-                                                        },
-                                                        child: Text("OK"),
-                                                      ),
-                                                    ],
-                                                  );
-                                                });
+                                      SizedBox(height: 15,),
+                                      FittedBox(
+                                        fit: BoxFit.contain,
+                                        child: ToggleSwitch(
+                                          initialLabelIndex: _mMRCIndex,
+                                          totalSwitches: 5,
+                                          minWidth: 1e8,
+                                          minHeight: 40,
+                                          inactiveBgColor: Theme.of(context).scaffoldBackgroundColor,
+                                          borderColor: [Color(0xff212121)],
+                                          dividerColor: Color(0xff212121),
+                                          borderWidth: 1.0,
+                                          multiLineText: true,
+                                          labels: const ["0", "1", "2", "3", "4"],
+                                          onToggle: (index){
+                                            setState(() {
+                                              _mMRCIndex = index!;
+                                              _mMRCgrade = ["0", "1", "2", "3", "4"][index];
+                                            });
                                           },
-                                          child: Icon(
-                                            Icons.info,
-                                            size: 28,
-                                          ),
                                         ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 15,),
-                                    FittedBox(
-                                      fit: BoxFit.contain,
-                                      child: ToggleSwitch(
-                                        initialLabelIndex: _mMRCIndex,
-                                        totalSwitches: 5,
-                                        minWidth: 1e8,
-                                        minHeight: 40,
-                                        inactiveBgColor: Theme.of(context).scaffoldBackgroundColor,
-                                        borderColor: [Color(0xff212121)],
-                                        dividerColor: Color(0xff212121),
-                                        borderWidth: 1.0,
-                                        multiLineText: true,
-                                        labels: const ["0", "1", "2", "3", "4"],
-                                        onToggle: (index){
-                                          setState(() {
-                                            _mMRCIndex = index!;
-                                            _mMRCgrade = ["0", "1", "2", "3", "4"][index];
-                                          });
-                                        },
                                       ),
-                                    ),
-                                    SizedBox(height: 5,),
-                                  ],
+                                      SizedBox(height: 5,),
+                                    ],
+                                  ),
                                 ),
                                 isActive: _currentStep >= 0,
                                 state: checkStep2? StepState.complete : StepState.indexed,
@@ -726,36 +809,36 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
   // Function to Build Toggle Buttons
   Column buildToggleButton(BuildContext context, int initialLabelIndex, String buttonLabel, List<String> toggleOptions, void Function(int?)? onChanged, {int? toggleSwitches, double? height}) {
     return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              buttonLabel,
-                              style: GoogleFonts.inter(
-                                color: Colors.black54,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            SizedBox(height: 15,),
-                            FittedBox(
-                              fit: BoxFit.contain,
-                              child: ToggleSwitch(
-                                initialLabelIndex: initialLabelIndex,
-                                totalSwitches: toggleSwitches ?? 3,
-                                minWidth: 1e8,
-                                minHeight: height ?? 40,
-                                inactiveBgColor: Theme.of(context).scaffoldBackgroundColor,
-                                borderColor: [Color(0xff212121)],
-                                dividerColor: Color(0xff212121),
-                                borderWidth: 1.0,
-                                multiLineText: true,
-                                centerText: true,
-                                labels: toggleOptions,
-                                onToggle: onChanged,
-                              ),
-                            ),
-                          ],
-                        );
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          buttonLabel,
+          style: GoogleFonts.inter(
+            color: Colors.black54,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        SizedBox(height: 15,),
+        FittedBox(
+          fit: BoxFit.contain,
+          child: ToggleSwitch(
+            initialLabelIndex: initialLabelIndex,
+            totalSwitches: toggleSwitches ?? 3,
+            minWidth: 1e8,
+            minHeight: height ?? 40,
+            inactiveBgColor: Theme.of(context).scaffoldBackgroundColor,
+            borderColor: [Color(0xff212121)],
+            dividerColor: Color(0xff212121),
+            borderWidth: 1.0,
+            multiLineText: true,
+            centerText: true,
+            labels: toggleOptions,
+            onToggle: onChanged,
+          ),
+        ),
+      ],
+    );
   }
   // Function to build Text Input Fields
   Widget buildTextFormField(TextEditingController myController, String label, {TextInputType? keyboardType, List<TextInputFormatter>? inputFormatters, String? Function(String?)? validator}) {
@@ -777,5 +860,4 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     );
   }
 }
-
 

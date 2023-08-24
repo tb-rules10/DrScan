@@ -13,6 +13,7 @@ class PatientData {
   int mMRCgrade;
   double fev1PreBD;
   double fev1FVCPostBD;
+  int smokingIndex;
   int? goldGrade;
   List<int> catValues;
 
@@ -32,6 +33,7 @@ class PatientData {
     required this.fev1PreBD,
     required this.fev1FVCPostBD,
     required this.catValues,
+    required this.smokingIndex,
     this.goldGrade = null,
   });
 
@@ -46,6 +48,7 @@ class PatientData {
       'EXPECTORATION': hasExpectoration,
       'DIABETES': hasDiabetes,
       'TYPE OF SMOKER': smoker,
+      'Smoking Index': smokingIndex,
       'CIGARETTE/BIDI/GANJA': smokerType,
       'ALCOHOL USE': alcoholConsumer,
       'mMRC GRADE': mMRCgrade,
@@ -68,6 +71,7 @@ class PatientData {
       hasDiabetes: json['DIABETES'],
       smoker: json['TYPE OF SMOKER'],
       smokerType: json['CIGARETTE/BIDI/GANJA'],
+      smokingIndex: json['Smoking Index'],
       alcoholConsumer: json['ALCOHOL USE'],
       mMRCgrade: json['mMRC GRADE'],
       catValues: json['Cat Values'],
@@ -88,6 +92,7 @@ class PatientData {
     print('Diabetes: $hasDiabetes');
     print('Smoker: $smoker');
     print('Smoker Type: $smokerType');
+    print('Smoking Index: $smokingIndex');
     print('Alcohol Consumer: $alcoholConsumer');
     print('mMRC Grade: $mMRCgrade');
     print('Cat Values: $catValues');
