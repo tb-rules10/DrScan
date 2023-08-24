@@ -187,7 +187,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
       return 'FEV1/FVC POST-BD is required';
     }
     double fev1FVCPostBD = double.tryParse(value) ?? 0.0;
-    if (fev1FVCPostBD <= 0) {
+    if (fev1FVCPostBD <= 0 || fev1FVCPostBD > 100 ) {
       return 'Enter a valid value greater than 0';
     }
     return null;
