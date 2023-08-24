@@ -29,6 +29,13 @@ class _ReportScreenState extends State<ReportScreen> {
     widget.patientData.printInfo();
   }
 
+  String bmiCalculator(double height, double weight){
+    double bmi = (widget.patientData.weight * 10000) / (widget.patientData.height * widget.patientData.height);
+    print(bmi);
+    print('****************************************************************************');
+    return bmi.toInt().toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -295,7 +302,12 @@ class _ReportScreenState extends State<ReportScreen> {
                     const SizedBox(
                       height: 37,
                     ),
-                      
+
+
+                    parsescreen("BMI", bmiCalculator(widget.patientData.height, widget.patientData.weight), "bmi.jpeg"),
+                    const SizedBox(
+                      height: 20,
+                    ),  
                     // 2nd one
                     parsescreen("SMOKER", widget.patientData.smoker, "Smoke Free.png"),
                     const SizedBox(
@@ -313,6 +325,11 @@ class _ReportScreenState extends State<ReportScreen> {
                           ),
                         ],
                       ),
+                    ),
+
+                    parsescreen("SMOKING INDEX", widget.patientData.smokingIndex.toString(), "Smoke Free.png"),
+                    const SizedBox(
+                      height: 20,
                     ),
                       
                     parsescreen("ALCOHOL", widget.patientData.alcoholConsumer, "wine.png"),
